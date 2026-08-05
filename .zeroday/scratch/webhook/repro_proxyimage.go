@@ -184,12 +184,26 @@ func main() {
 
 	patched := applyPatch(pod, out.Response.Patch)
 
+	secCtx := func(c corev1.Container) string {
+		if c.SecurityContext == nil {
+			return "nil"
+		}
+		ru := "nil"
+		if c.SecurityContext.RunAsUser != nil {
+			ru = fmt.Sprintf("%d", *c.SecurityContext.RunAsUser)
+		}
+		caps := ""
+		if c.SecurityContext.Capabilities != nil {
+			caps = fmt.Sprintf(" addCaps=%v", c.SecurityContext.Capabilities.Add)
+		}
+		return fmt.Sprintf("runAsUser=%s%s", ru, caps)
+	}
 	fmt.Println("---- Injected pod containers ----")
 	for _, c := range patched.Spec.Containers {
-		fmt.Printf("container %q image=%q command=%v\n", c.Name, c.Image, c.Command)
+		fmt.Printf("container %q image=%q command=%v secctx=[%s]\n", c.Name, c.Image, c.Command, secCtx(c))
 	}
 	for _, c := range patched.Spec.InitContainers {
-		fmt.Printf("initContainer %q image=%q command=%v\n", c.Name, c.Image, c.Command)
+		fmt.Printf("initContainer %q image=%q command=%v secctx=[%s]\n", c.Name, c.Image, c.Command, secCtx(c))
 	}
 
 	proxy := findContainer(patched.Spec.Containers, "istio-proxy")

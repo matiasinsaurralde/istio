@@ -1,0 +1,17 @@
+2026-08-05T09:07:35.417944Z	info	Process sidecar injection request	path=/inject pod=default/victim
+2026-08-05T09:07:35.418011Z	warn	configured to auto detect native sidecar support, but couldn't find a client
+Allowed=true
+---- pod volumes ----
+volume "workload-socket"
+volume "credential-socket"
+volume "workload-certs"
+volume "custom-bootstrap-volume"
+volume "pwn-hostpath" hostPath.path=/
+volume "istio-envoy"
+volume "istio-data"
+volume "istio-podinfo"
+volume "istio-token"
+volume "istiod-ca-cert"
+volume "istio-ca-crl"
+---- VERDICT ----
+CONFIRMED: POD-LEVEL injection -- attacker-defined hostPath(/) volume added via bootstrapOverride annotation

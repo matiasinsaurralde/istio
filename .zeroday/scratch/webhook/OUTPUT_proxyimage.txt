@@ -1,10 +1,10 @@
-2026-08-05T08:58:56.101431Z	info	Process sidecar injection request	path=/inject pod=default/victim
-2026-08-05T08:58:56.102162Z	warn	configured to auto detect native sidecar support, but couldn't find a client
+2026-08-05T09:05:34.494617Z	info	Process sidecar injection request	path=/inject pod=default/victim
+2026-08-05T09:05:34.494700Z	warn	configured to auto detect native sidecar support, but couldn't find a client
 Allowed=true
 ---- Injected pod containers ----
-container "app" image="nginx" command=[]
-container "istio-proxy" image="registry.istio.io/testing/proxyv2:latest" command=[/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1]
-initContainer "istio-init" image="registry.istio.io/testing/proxyv2:latest" command=[/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1]
+container "app" image="nginx" command=[] secctx=[nil]
+container "istio-proxy" image="registry.istio.io/testing/proxyv2:latest" command=[/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1] secctx=[runAsUser=1337 addCaps=[]]
+initContainer "istio-init" image="registry.istio.io/testing/proxyv2:latest" command=[/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1] secctx=[runAsUser=0 addCaps=[NET_ADMIN NET_RAW]]
 ---- VERDICT ----
 CONFIRMED: attacker-controlled command injected into "istio-proxy": [/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1]
 CONFIRMED: attacker-controlled command injected into "istio-init" (image="registry.istio.io/testing/proxyv2:latest"): [/bin/sh -c echo OWNED_BY_ANNOTATION_INJECTION > /pwned; sleep 1]
