@@ -83,5 +83,7 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 - **F5 rule** (pod-annotation value → `text/template` YAML sink without injection-safe validation):
   - Sinks: `grep annotation-funcs in manifests/…/injection-template.yaml`. Tree-wide: ~26 `sidecar.istio.io/*` annotation sinks reach the template; of these ~10 have NO injection-safe validator in `AnnotationValidation` (proxyImage, logLevel, componentLogLevel, agentLogLevel, bootstrapOverride, userVolume, userVolumeMount, nativeSidecar, capNetBindService, port). Extent: whole-CLASS unquoted/unescaped interpolation, not a single sink ⇒ fix belongs at the template (JSON/quote encoding), not per-key allow-listing. Confirmed sinks: proxyImage (container command), logLevel (args), bootstrapOverride (pod hostPath volume).
 
+- **F6 rule** (ignored-error parse then deref): `X, _ := url.Parse(...)`/`ParseRequestURI` (pointer result) followed by deref. Tree-wide: only `pilot/pkg/xds/debuggen.go:148` matches with a POINTER-returning parse + deref on a remote-reachable path. `netip.ParseAddr` hits (`cmd.go:241`, `debug.go:294`, `san.go:79`) return VALUE types (zero-value safe); `forwarder/util.go:88` is test-only. **F6 is a singleton** for the nil-deref shape.
+
 ## Coverage statement
 (pending — after wave 2)
