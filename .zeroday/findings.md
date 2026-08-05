@@ -75,5 +75,8 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
   - B: `host == "localhost"` / `host == "metadata.google.internal"` exact compares (case + trailing-dot bypass).
   - Tree-wide result: only `pkg/wasm/imagefetcher.go:137,142,151` matches BOTH A and B as a security guard on an attacker host resolved at dial time. Other `IsLoopback`/`=="localhost"` hits operate on real peer `RemoteAddr` or local interface/config addrs (not attacker-resolved). **F1 is a singleton** for its shape.
 
+- **F5 rule** (pod-annotation value → `text/template` YAML sink without injection-safe validation):
+  - Sinks: `grep annotation-funcs in manifests/…/injection-template.yaml`. Tree-wide: ~26 `sidecar.istio.io/*` annotation sinks reach the template; of these ~10 have NO injection-safe validator in `AnnotationValidation` (proxyImage, logLevel, componentLogLevel, agentLogLevel, bootstrapOverride, userVolume, userVolumeMount, nativeSidecar, capNetBindService, port). Extent: whole-CLASS unquoted/unescaped interpolation, not a single sink ⇒ fix belongs at the template (JSON/quote encoding), not per-key allow-listing. Confirmed sinks: proxyImage (container command), logLevel (args), bootstrapOverride (pod hostPath volume).
+
 ## Coverage statement
 (pending — after wave 2)
