@@ -1,33 +1,34 @@
 valid-config                 HTTP=200 allowed=true msg=""
-2026-08-05T09:02:42.980118Z	info	validationServer	configuration is invalid: empty key
+2026-08-05T09:03:27.001665Z	info	validationServer	configuration is invalid: empty key
 invalid-config               HTTP=200 allowed=false msg="configuration is invalid: empty key"
-unknown-type                 HTTP=200 allowed=true msg=""
-2026-08-05T09:02:42.981176Z	info	validationServer	cannot decode configuration: json: cannot unmarshal string into Go value of type crd.IstioKind
+2026-08-05T09:03:27.002093Z	info	validationServer	unrecognized type totally.unknown.io/v1, Kind=TotallyUnknownKind
+unknown-type                 HTTP=200 allowed=false msg="unrecognized type totally.unknown.io/v1, Kind=TotallyUnknownKind"
+2026-08-05T09:03:27.002555Z	info	validationServer	cannot decode configuration: json: cannot unmarshal string into Go value of type crd.IstioKind
 undecodable-object           HTTP=200 allowed=false msg="cannot decode configuration: json: cannot unmarshal string into Go value of type crd.IstioKind"
-2026-08-05T09:02:42.981692Z	info	validationServer	unknown field "unexpected_key" on MockConfig resource default/mock-config
+2026-08-05T09:03:27.003116Z	info	validationServer	unknown field "unexpected_key" on MockConfig resource default/mock-config
 extra-top-level-field        HTTP=200 allowed=false msg="unknown field \"unexpected_key\" on MockConfig resource default/mock-config"
 wrong-content-type           HTTP=415 allowed=n/a msg="invalid Content-Type, want `application/json`\n"
 not-an-admissionreview       HTTP=200 allowed=false msg="could not decode body: Object 'Kind' is missing in '{\"foo\":\"bar\"}'"
-2026-08-05T09:02:42.982846Z	info	http: panic serving 127.0.0.1:34450: runtime error: invalid memory address or nil pointer dereference
-goroutine 35 [running]:
+2026-08-05T09:03:27.004190Z	info	http: panic serving 127.0.0.1:59760: runtime error: invalid memory address or nil pointer dereference
+goroutine 51 [running]:
 net/http.(*conn).serve.func1()
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:1907 +0xbd
 panic({0x2445640?, 0x48ac660?})
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/runtime/panic.go:860 +0x13a
-istio.io/istio/pkg/webhooks/validation/server.(*Webhook).validate(0x7f2294387e88?, 0x39840529b020?)
+istio.io/istio/pkg/webhooks/validation/server.(*Webhook).validate(0x7f2654428520?, 0x169f86016e0?)
 	/home/user/istio/pkg/webhooks/validation/server/server.go:197 +0x1d
-istio.io/istio/pkg/webhooks/validation/server.serve({0x2bbf278, 0x398404f96780}, 0x39840530e780?, 0x398405391ac8)
+istio.io/istio/pkg/webhooks/validation/server.serve({0x2bbf2b8, 0x169f82c23c0}, 0x169f7cacdc0?, 0x169f7cefac8)
 	/home/user/istio/pkg/webhooks/validation/server/server.go:162 +0x355
 istio.io/istio/pkg/webhooks/validation/server.(*Webhook).serveValidate(...)
 	/home/user/istio/pkg/webhooks/validation/server/server.go:193
-net/http.HandlerFunc.ServeHTTP(0x398404c6fd40?, {0x2bbf278?, 0x398404f96780?}, 0x398405391b58?)
+net/http.HandlerFunc.ServeHTTP(0x169f82f63c0?, {0x2bbf2b8?, 0x169f82c23c0?}, 0x169f7cefb58?)
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:2286 +0x29
-net/http.(*ServeMux).ServeHTTP(0x427885?, {0x2bbf278, 0x398404f96780}, 0x39840530e780)
+net/http.(*ServeMux).ServeHTTP(0x427885?, {0x2bbf2b8, 0x169f82c23c0}, 0x169f7cacdc0)
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:2828 +0x1c7
-net/http.serverHandler.ServeHTTP({0x2bb5ad8?}, {0x2bbf278?, 0x398404f96780?}, 0x1?)
+net/http.serverHandler.ServeHTTP({0x2bb5b18?}, {0x2bbf2b8?, 0x169f82c23c0?}, 0x1?)
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:3311 +0x8e
-net/http.(*conn).serve(0x398404f9c480, {0x2bc44f0, 0x398405300120})
+net/http.(*conn).serve(0x169f7db95f0, {0x2bc4530, 0x169f82d2270})
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:2073 +0x650
-created by net/http.(*Server).Serve in goroutine 51
+created by net/http.(*Server).Serve in goroutine 9
 	/root/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.26.0.linux-amd64/src/net/http/server.go:3464 +0x485
-request-null                 HTTP=-1 allowed=n/a msg="transport error (server panic recovered / conn reset): Post \"http://127.0.0.1:46487/validate\": EOF"
+request-null                 HTTP=-1 allowed=n/a msg="transport error (server panic recovered / conn reset): Post \"http://127.0.0.1:34115/validate\": EOF"

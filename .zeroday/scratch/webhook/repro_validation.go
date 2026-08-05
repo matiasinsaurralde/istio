@@ -123,8 +123,17 @@ func main() {
 	st, r, m = post(srv, reviewRaw(collections.Mock.Kind(), mockRaw("", false)), "application/json")
 	show("invalid-config", st, r, m)
 
-	// 3. Unknown type -> expect allowed false (fail-closed)
-	st, r, m = post(srv, reviewRaw("TotallyUnknownKind", mockRaw("key", false)), "application/json")
+	// 3. Unknown type -> expect allowed false (fail-closed).
+	//    NOTE: validate() keys off the OBJECT's embedded apiVersion/kind, not request.Kind,
+	//    so we must build an object whose embedded GVK is unknown.
+	unkObj := map[string]any{
+		"apiVersion": "totally.unknown.io/v1",
+		"kind":       "TotallyUnknownKind",
+		"metadata":   map[string]any{"name": "x", "namespace": "default"},
+		"spec":       map[string]any{"a": "b"},
+	}
+	unkRaw, _ := json.Marshal(unkObj)
+	st, r, m = post(srv, reviewRaw("TotallyUnknownKind", unkRaw), "application/json")
 	show("unknown-type", st, r, m)
 
 	// 4. Undecodable object (Object.Raw is not JSON object) -> expect allowed false

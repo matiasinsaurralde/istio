@@ -65,5 +65,11 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 - JWKS `blockedCIDRDialContext`: uses `Dialer.Control` on RESOLVED IP — correct vs DNS rebinding; CIDR parse correct. REVIEWED-correct (default-off = opt-in hardening, matches upstream). Not a code bug.
 - **DNS proxy crash/DoS (whole family): BLOCKED.** istio-agent DNS proxy (`pkg/dns/client/`) fuzzed via real handler (`FuzzServeDNSRaw` 7.2M, `FuzzServeDNSStructured` 2.9M, `FuzzLookupHost` 1M+, `FuzzBuildDNSAnswers` 589K) + 2007-payload raw-socket blast against real `LocalDNSServer`; ZERO panics/hangs/OOM. 8 candidates refuted (O(n²) wildcard bounded by miekg 255-octet budget; CNAME assertion invariant; roundRobin index math; Question[0] guarded; EDNS Truncate shrink-only; compression-pointer cap). Only minor: `queryUpstreamParallel` blocks forever if resolv.conf empty (not query-triggerable). Harnesses in `pkg/dns/client/zz_zeroday_*_test.go`.
 
+## Completeness-gate rules (shape → tree-wide validation)
+- **F1 rule** (SSRF host allowlist that checks only literal IPs / exact-string hostnames):
+  - A: `net.ParseIP(host)` guarded by `ip != nil && (IsPrivate||IsLoopback||IsLinkLocalUnicast)` ⇒ hostnames skip the check.
+  - B: `host == "localhost"` / `host == "metadata.google.internal"` exact compares (case + trailing-dot bypass).
+  - Tree-wide result: only `pkg/wasm/imagefetcher.go:137,142,151` matches BOTH A and B as a security guard on an attacker host resolved at dial time. Other `IsLoopback`/`=="localhost"` hits operate on real peer `RemoteAddr` or local interface/config addrs (not attacker-resolved). **F1 is a singleton** for its shape.
+
 ## Coverage statement
-(pending)
+(pending — after wave 2)
