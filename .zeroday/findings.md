@@ -32,8 +32,14 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 - **O3**: `pkg/istio-agent/health/health_probers.go:262` exec of `Config.Command` — trace who sets it (pod annotation?). Assigned to remote-config agent.
 - **O4**: `pilot.go:106` `DebugEndpointAuthAllowedNamespaces = sets.New(strings.Split(v, ",")...)` — default v="" => set `{""}`. Neutralized by `namespace==""` early-deny in AuthorizeDebugRequest, but a real smell; if any consumer skips the empty-guard it's an allow-all. Found: reading.
 
-## Confirmed findings
-(none yet)
+## Confirmed / strong candidates
+- **F1 (SSRF, custom control bypass) — `pkg/wasm/imagefetcher.go:69-156` `ssrfProtectionTransport` / `validateRealmURL`.** CUSTOM SSRF filter over the OCI `WWW-Authenticate` bearer realm. Bypasses (all confirmed by probe `.zeroday/scratch/remote-config/ssrf_repro/main.go`):
+  - case-sensitive exact matches: `host=="localhost"`, `host=="metadata.google.internal"` → `LOCALHOST`, `Metadata.Google.Internal` pass;
+  - trailing-dot FQDN `metadata.google.internal.` passes;
+  - `0.0.0.0` (and IPv6 `[::]`) not classified private/loopback/link-local → passes, routes to loopback on Linux;
+  - **DNS-name bypass (general)**: filter only inspects *literal* IPs (`net.ParseIP`); any hostname that A-resolves to 169.254.169.254 / 127.0.0.1 / RFC1918 passes and is resolved at dial time.
+  Exploit: attacker-controlled OCI registry (referenced by a WasmPlugin) returns 401 with `realm="http://169.254.169.254/…"`; fetcher authenticates against it and forwards the internal response as `Authorization: Bearer` to the attacker's registry ⇒ cloud metadata / IAM credential exfiltration from the fetcher's network position.
+  STATUS: needs (a) real-code-path reproducer via an in-package `wasm` test calling the REAL `validateAllRealms`/`RoundTrip` (agent working; verbatim-copy probe already passes), and (b) reachability writeup (who sets WasmPlugin url; where fetch runs — istio-agent vs istiod). Found: reading + probe (remote-config agent).
 
 ## Dead ends
 (none yet)

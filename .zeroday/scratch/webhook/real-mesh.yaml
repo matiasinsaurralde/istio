@@ -1,0 +1,46 @@
+connectTimeout: 10s
+defaultConfig:
+  binaryPath: /usr/local/bin/envoy
+  configPath: ./etc/istio/proxy
+  controlPlaneAuthPolicy: MUTUAL_TLS
+  discoveryAddress: istiod.istio-system.svc:15012
+  drainDuration: 45s
+  proxyAdminPort: 15000
+  serviceCluster: istio-proxy
+  statNameLength: 189
+  statusPort: 15020
+  terminationDrainDuration: 5s
+defaultDestinationRuleExportTo:
+- '*'
+defaultProviders:
+  metrics:
+  - prometheus
+defaultServiceExportTo:
+- '*'
+defaultVirtualServiceExportTo:
+- '*'
+dnsRefreshRate: 60s
+enableAutoMtls: true
+enablePrometheusMerge: true
+enableTracing: true
+extensionProviders:
+- name: prometheus
+  prometheus: {}
+- name: stackdriver
+  stackdriver: {}
+- envoyFileAccessLog:
+    path: /dev/stdout
+  name: envoy
+inboundTrafficPolicy: {}
+ingressClass: istio
+ingressControllerMode: STRICT
+ingressService: istio-ingressgateway
+localityLbSetting:
+  enabled: true
+outboundTrafficPolicy:
+  mode: ALLOW_ANY
+protocolDetectionTimeout: 0s
+proxyInboundListenPort: 15006
+proxyListenPort: 15001
+rootNamespace: istio-system
+trustDomain: cluster.local
