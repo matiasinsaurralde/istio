@@ -18,7 +18,8 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 |---|--------|----------------------|--------|
 | A | CA authenticators | XFCC/oidc/kube-jwt/cert identity extraction bug → cert for arbitrary id | OPEN |
 | B | spiffe identity/trustdomain | trust-domain confusion / parse bug → impersonation | OPEN |
-| C | authz policy matching | path/header normalization mismatch → authz bypass | OPEN |
+| C | authz policy TRANSLATION | path/header normalization mismatch → authz bypass | BLOCKED (28k+ differential-fuzzed, 0 divergences; fail-closed verified) |
+| C2 | authz policy TARGETING/attachment | DENY fails to attach / ALLOW over-attaches (selector/targetRef/rootNS/waypoint) → bypass | OPEN (wave 2) — authz agent did NOT reach `ShouldAttachPolicy` |
 | D | DNS proxy parser | malformed query → crash | BLOCKED (11.3M fuzz execs, no crash; miekg guards) |
 | E | HBONE / h2 handling | request smuggling / auth bypass | OPEN |
 | F | injection webhook | template/param injection → RCE or SSRF | OPEN |
@@ -67,6 +68,7 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 - Validation webhook fail-open: REFUTED — `/validate` (`pkg/webhooks/validation/server/server.go`) is fail-CLOSED on all error paths (invalid config, unknown kind, undecodable, unknown-field smuggling → Allowed:false; wrong content-type→415). Only non-CREATE/UPDATE ops return Allowed:true (by design). REVIEWED-correct.
 - Injection webhook process-crash DoS: REFUTED — `request:null` nil-derefs in both handlers but net/http per-request recover resets the connection; istiod survives. (Latent nil-deref noted; bootstrap-window failurePolicy=Ignore is documented design.)
 - Injection template CODE injection / RCE: REFUTED — pod values are template DATA only; `inject.istio.io/templates` only selects pre-parsed operator templates by name.
+- **Authz policy TRANSLATION (AuthorizationPolicy/RequestAuthentication → Envoy RBAC/JWT): BLOCKED.** Differential fuzzer vs independent Envoy-matcher reference over 28,000+ generated policies; zero over-permissive divergences. Verified faithful: per-field matchers (path templates, host, method, port, principals, namespaces `.*/ns/<ns>/.*`, serviceAccounts regex, trustDomains, IP/CIDR, JWT claims), AND/OR composition, negation `Not(Or(...))`, ALLOW/DENY/AUDIT/CUSTOM ordering, dry-run split, empty-rules→matchNever. `checkError` is fail-closed (DENY widens on invalid, ALLOW drops rule). JWT `RequiresAny{AllowMissing}` rejects present-but-invalid. Only smell: CUSTOM provider prefix collision (`istio-ext-authz-{provider}` no trailing dash) — over-triggers ext_authz (MORE restrictive), default-off. NOT exploitable. Harnesses: `.zeroday/scratch/authz/`.
 - **DNS proxy crash/DoS (whole family): BLOCKED.** istio-agent DNS proxy (`pkg/dns/client/`) fuzzed via real handler (`FuzzServeDNSRaw` 7.2M, `FuzzServeDNSStructured` 2.9M, `FuzzLookupHost` 1M+, `FuzzBuildDNSAnswers` 589K) + 2007-payload raw-socket blast against real `LocalDNSServer`; ZERO panics/hangs/OOM. 8 candidates refuted (O(n²) wildcard bounded by miekg 255-octet budget; CNAME assertion invariant; roundRobin index math; Question[0] guarded; EDNS Truncate shrink-only; compression-pointer cap). Only minor: `queryUpstreamParallel` blocks forever if resolv.conf empty (not query-triggerable). Harnesses in `pkg/dns/client/zz_zeroday_*_test.go`.
 
 ## Completeness-gate rules (shape → tree-wide validation)
