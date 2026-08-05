@@ -1,2 +1,25 @@
 fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
 fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 4 workers
+fuzz: elapsed: 3s, execs: 20515 (6838/sec), new interesting: 47 (total: 50)
+fuzz: elapsed: 6s, execs: 53705 (11062/sec), new interesting: 67 (total: 70)
+fuzz: elapsed: 9s, execs: 75335 (7209/sec), new interesting: 71 (total: 74)
+fuzz: elapsed: 12s, execs: 76129 (265/sec), new interesting: 71 (total: 74)
+fuzz: elapsed: 15s, execs: 76129 (0/sec), new interesting: 71 (total: 74)
+fuzz: elapsed: 18s, execs: 113964 (12619/sec), new interesting: 74 (total: 77)
+fuzz: elapsed: 21s, execs: 129438 (5157/sec), new interesting: 75 (total: 78)
+fuzz: elapsed: 24s, execs: 142901 (4488/sec), new interesting: 79 (total: 82)
+fuzz: elapsed: 27s, execs: 331774 (62959/sec), new interesting: 86 (total: 89)
+fuzz: elapsed: 30s, execs: 364854 (10934/sec), new interesting: 93 (total: 96)
+fuzz: elapsed: 33s, execs: 378518 (4593/sec), new interesting: 97 (total: 100)
+fuzz: elapsed: 36s, execs: 411035 (10836/sec), new interesting: 100 (total: 103)
+fuzz: elapsed: 39s, execs: 443429 (10802/sec), new interesting: 101 (total: 104)
+fuzz: elapsed: 42s, execs: 467800 (8124/sec), new interesting: 103 (total: 106)
+fuzz: elapsed: 45s, execs: 486086 (6096/sec), new interesting: 103 (total: 106)
+fuzz: elapsed: 48s, execs: 506574 (6825/sec), new interesting: 104 (total: 107)
+fuzz: elapsed: 51s, execs: 524221 (5886/sec), new interesting: 104 (total: 107)
+fuzz: elapsed: 54s, execs: 545229 (6999/sec), new interesting: 105 (total: 108)
+fuzz: elapsed: 57s, execs: 566093 (6958/sec), new interesting: 105 (total: 108)
+fuzz: elapsed: 1m0s, execs: 589683 (7862/sec), new interesting: 105 (total: 108)
+fuzz: elapsed: 1m1s, execs: 589683 (0/sec), new interesting: 105 (total: 108)
+PASS
+ok  	istio.io/istio/pkg/dns/client	61.036s
