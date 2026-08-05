@@ -19,7 +19,7 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 | A | CA authenticators | XFCC/oidc/kube-jwt/cert identity extraction bug → cert for arbitrary id | OPEN |
 | B | spiffe identity/trustdomain | trust-domain confusion / parse bug → impersonation | OPEN |
 | C | authz policy matching | path/header normalization mismatch → authz bypass | OPEN |
-| D | DNS proxy parser | malformed query → crash | OPEN |
+| D | DNS proxy parser | malformed query → crash | BLOCKED (11.3M fuzz execs, no crash; miekg guards) |
 | E | HBONE / h2 handling | request smuggling / auth bypass | OPEN |
 | F | injection webhook | template/param injection → RCE or SSRF | OPEN |
 | G | JWT validation | signature/aud/iss bypass | OPEN |
@@ -63,6 +63,7 @@ Method: first-principles reading + probes. No git diff/blame, no CVE lookup.
 - HBONE crash/panic DoS: real server survives malformed CONNECT/h2 + reset storm under -race; x/net/http2 caps streams at 250. REFUTED.
 - h2c "unsafe wrapper": `pkg/h2c` doesn't exist here; no prod code uses raw h2c; istiod h2c hardened + non-default. DEAD END.
 - JWKS `blockedCIDRDialContext`: uses `Dialer.Control` on RESOLVED IP — correct vs DNS rebinding; CIDR parse correct. REVIEWED-correct (default-off = opt-in hardening, matches upstream). Not a code bug.
+- **DNS proxy crash/DoS (whole family): BLOCKED.** istio-agent DNS proxy (`pkg/dns/client/`) fuzzed via real handler (`FuzzServeDNSRaw` 7.2M, `FuzzServeDNSStructured` 2.9M, `FuzzLookupHost` 1M+, `FuzzBuildDNSAnswers` 589K) + 2007-payload raw-socket blast against real `LocalDNSServer`; ZERO panics/hangs/OOM. 8 candidates refuted (O(n²) wildcard bounded by miekg 255-octet budget; CNAME assertion invariant; roundRobin index math; Question[0] guarded; EDNS Truncate shrink-only; compression-pointer cap). Only minor: `queryUpstreamParallel` blocks forever if resolv.conf empty (not query-triggerable). Harnesses in `pkg/dns/client/zz_zeroday_*_test.go`.
 
 ## Coverage statement
 (pending)
